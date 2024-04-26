@@ -3,10 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
     <title>Carrossel de Vagas</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            font-family: "Montserrat", sans-serif;
         }
         .carousel-container {
             position: relative;
@@ -228,12 +234,17 @@
         // Função para abrir o modal com os detalhes da vaga
         function openModal(vaga) {
             var modalContent = document.getElementById("modal-content");
+            var formattedDescription = formatDescription(vaga.description);
+            var formattedRequirements= formatRequirements(vaga.requirements);
             modalContent.innerHTML = `
-                <h3>${vaga.title}</h3>
-                <p>Localização: ${vaga.location}</p>
-                <p>Descrição: ${vaga.description}</p>
-                <p>Requisitos: ${vaga.requirements}</p>
-            `;
+            <h3>${vaga.occupation}</h3>
+            <p><strong>Localização:</strong> ${vaga.location}</p>
+            <hr>
+            <p><strong>Descrição:</strong> ${formattedDescription}</p>
+            <hr>
+            <p><strong>Requisitos:</strong> ${formattedRequirements}</p>
+            <hr>
+        `;
             modal.style.display = "block";
         }
 
@@ -248,6 +259,44 @@
                 modal.style.display = "none";
             }
         };
+
+        // Função para formatar a descrição da vaga
+        function formatDescription(description) {
+            // Quebra de linha: quebrando o texto em várias linhas usando <br>
+            description = description.replace(/\n/g, "<br>");
+
+            // Lista de itens: convertendo partes do texto em uma lista de itens usando <ul> e <li>
+            // description = description.replace(/- /g, "<li>");
+            //description = "<ul><li>" + description + "</li></ul>";
+
+            // Destaque em negrito: destacando palavras-chave ou frases importantes em negrito usando <strong>
+            description = description.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+            // Parágrafos curtos: dividindo o texto em parágrafos curtos usando <p>
+            description = "<p>" + description.replace(/\n\s*\n/g, "</p><p>") + "</p>";
+
+            return description;
+        }
+
+          // Função para formatar os requerimentos da vaga
+            function formatRequirements(requirements) {
+                // Quebra de linha: quebrando o texto em várias linhas usando <br>
+                requirements = requirements.replace(/\n/g, "<br>");
+
+                // Lista de itens: convertendo partes do texto em uma lista de itens usando <ul> e <li>
+                requirements = requirements.replace(/- /g, "<li>");
+                requirements = "<ul><li>" + requirements + "</li></ul>";
+
+                // Destaque em negrito: destacando palavras-chave ou frases importantes em negrito usando <strong>
+                requirements = requirements.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+                // Parágrafos curtos: dividindo o texto em parágrafos curtos usando <p>
+                requirements = "<p>" + requirements.replace(/\n\s*\n/g, "</p><p>") + "</p>";
+
+                return requirements;
+            }
+
+
     </script>
 </body>
 </html>
