@@ -48,6 +48,21 @@
             padding: 20px;
         }
 
+        .plus{
+            
+        }
+
+        .plus button{
+            background-color: #05563a;
+            border-radius: 500px;
+            color: #fefefe;
+            font-weight: 400;
+            padding: 1%;
+            width: 25px;
+            height: 25px;
+
+        }
+
         .card:hover {
             transform: scale(1.05);
         }
@@ -114,6 +129,7 @@
             border: 1px solid #888;
             width: 80%;
             max-width: 600px;
+            border-radius: 25px;
         }
 
         .close {
@@ -129,6 +145,35 @@
             text-decoration: none;
             cursor: pointer;
         }
+
+        .candidatar{
+        padding: 1.3em 3em;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        font-weight: 500;
+        color:#fefefe;
+        background-color:#08704b;
+        border: none;
+        border-radius: 45px;
+        box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease 0s;
+        cursor: pointer;
+        outline: none;
+        margin-top: 1%;
+        }
+
+        .candidatar:hover {
+        background-color: #23c483;
+        box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+        color: #fff;
+        transform: translateY(-7px);
+        }
+
+        .candidatar:active {
+        transform: translateY(-1px);
+        }
+
     </style>
 </head>
 <body>
@@ -213,6 +258,9 @@
                         card.innerHTML = `
                             <h3>${job.occupation}</h3>
                             <p>${job.location}</p>
+                            <div class="plus">
+                                <button>&plus;</button>
+                            </div>
                         `;
                         card.addEventListener("click", () => openModal(job)); // Adiciona evento de clique ao card
                         carousel.appendChild(card);
@@ -244,6 +292,11 @@
             <hr>
             <p><strong>Requisitos:</strong> ${formattedRequirements}</p>
             <hr>
+            <center>
+            <a target="_blank" href=" ${vaga.url} "><button class="candidatar">
+                Candidate-se Agora!
+            </button></a>
+            </center>
         `;
             modal.style.display = "block";
         }
