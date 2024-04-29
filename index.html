@@ -11,7 +11,6 @@
     <title>Carrossel de Vagas</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             font-family: "Montserrat", sans-serif;
         }
         .carousel-container {
@@ -36,7 +35,7 @@
             width: 400px;
             height: 200px;
             margin-right: 20px;
-            background-color: #f0f0f0;
+            background-color: white;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             cursor: pointer;
@@ -117,8 +116,13 @@
             height: 100%;
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.4);
+            overflow: auto;
         }
 
+        body.modal-open {
+            overflow: hidden;
+        }
+        
         .modal-content {
             background-color: #fefefe;
             margin: 2% auto;
@@ -280,24 +284,32 @@
         function openModal(vaga) {
             var modalContent = document.getElementById("modal-content");
             var formattedDescription = formatDescription(vaga.description);
-            var formattedRequirements= formatRequirements(vaga.requirements);
+            var formattedRequirements = formatRequirements(vaga.requirements);
             modalContent.innerHTML = `
-            <h3>${vaga.occupation}</h3>
-            <p><strong>Localização:</strong> ${vaga.location}</p>
-            <hr>
-            <p><strong>Descrição:</strong> ${formattedDescription}</p>
-            <hr>
-            <p><strong>Requisitos:</strong> ${formattedRequirements}</p>
-            <hr>
-            <center>
-            <a target="_blank" href=" ${vaga.url} "><button class="candidatar">
-                Candidate-se Agora!
-            </button></a>
-            </center>
-        `;
+                <h3>${vaga.occupation}</h3>
+                <p><strong>Localização:</strong> ${vaga.location}</p>
+                <hr>
+                <p><strong>Descrição:</strong> ${formattedDescription}</p>
+                <hr>
+                <p><strong>Requisitos:</strong> ${formattedRequirements}</p>
+                <hr>
+                <center>
+                    <a target="_blank" href=" ${vaga.url} "><button class="candidatar">
+                        Candidate-se Agora!
+                    </button></a>
+                </center>
+            `;
             modal.style.display = "block";
+            document.body.style.overflow = "hidden"; // Desativa a rolagem da página principal
+            modal.addEventListener("click", closeModal); // Adiciona evento de clique no modal para fechá-lo
         }
 
+        // Função para fechar o modal
+        function closeModal() {
+            modal.style.display = "none";
+            document.body.style.overflow = "auto"; // Reativa a rolagem da página principal
+            modal.removeEventListener("click", closeModal); // Remove o evento de clique no modal
+        }
         // Quando o usuário clicar no <span> (x), fecha o modal
         span.onclick = function() {
             modal.style.display = "none";
