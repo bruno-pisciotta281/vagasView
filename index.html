@@ -178,7 +178,7 @@
         <br>
         <div class="carousel-container">
             <div class="carousel">
-                <!-- Os cards das vagas serão adicionados dinamicamente aqui -->
+                <!-- cards dinâmicos -->
             </div>
             <div class="progress-bar">
                 <div class="progress"></div>
@@ -209,13 +209,13 @@
             let numCards = 0;
             let cardWidth = 0;
 
-            // Função para atualizar a barra de progresso
+            // Função atualizar a barra de progresso
             function updateProgressBar() {
                 const progressWidth = (currentIndex + 1) * cardWidth / carousel.scrollWidth * 100;
                 progressBar.style.width = progressWidth + "%";
             }
 
-            // Função para mover o carrossel para a esquerda
+            // Função mover o carrossel para a esquerda
             function moveCarouselLeft() {
                 if (currentIndex > 0) {
                     currentIndex--;
@@ -227,7 +227,7 @@
                 }
             }
 
-            // Função para mover o carrossel para a direita
+            // Função mover o carrossel para a direita
             function moveCarouselRight() {
                 if (currentIndex < numCards - 1) {
                     currentIndex++;
@@ -309,7 +309,7 @@
             }
         };
 
-        // Função para formatar a descrição da vaga
+        // Função formatar a descrição da vaga
         function formatDescription(description) {
             // Quebra de linha: quebrando o texto em várias linhas usando <br>
             description = description.replace(/\n/g, "<br>");
@@ -327,7 +327,7 @@
             return description;
         }
 
-          // Função para formatar os requerimentos da vaga
+          // Função formatar os requerimentos da vaga
             function formatRequirements(requirements) {
                 // Quebra de linha: quebrando o texto em várias linhas usando <br>
                 requirements = requirements.replace(/\n/g, "<br>");
