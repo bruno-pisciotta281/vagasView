@@ -3,27 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
     <title>Carrossel de Vagas</title>
     <style>
         body {
             font-family: "Montserrat", sans-serif;
         }
+
         .carousel-container {
             position: relative;
             margin: 3%;
-            position: relative; 
+            overflow: hidden;
         }
 
         .carousel {
             display: flex;
-            overflow-x: auto;
+            transition: transform 0.3s ease;
             scroll-snap-type: x mandatory;
             margin-bottom: 20px;
+            scrollbar-width: none;
+            padding: 0 1px; /* Ajuste para evitar corte do primeiro e último cartão */
         }
 
         .carousel::-webkit-scrollbar {
@@ -34,12 +35,12 @@
             flex: 0 0 auto;
             width: 400px;
             height: 200px;
-            margin-right: 20px;
+            margin: 0 10px;
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -47,20 +48,13 @@
             padding: 20px;
         }
 
-        .plus button{
-            background-color: #05563a;
-            border-radius: 500px;
-            color: #fefefe;
-            font-weight: 400;
-            padding: 1%;
-            width: 25px;
-            height: 25px;
-            border: none;
-            cursor: pointer;
+        .card:not(.active) {
+            opacity: 0.5;
         }
 
-        .card:hover {
-            transform: scale(1.05);
+        .card.active {
+            transform: scale(1.1);
+            opacity: 1;
         }
 
         .controls {
@@ -85,24 +79,23 @@
             background-color: #05563a;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 10px;
-            background-color: #ccc;
-            border-radius: 5px;
-            margin-bottom: 10px;
-            position: relative;
-            overflow: hidden;
+        .progress-dots-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
         }
 
-        .progress {
-            height: 100%;
+        .progress-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #ccc;
+            border-radius: 50%;
+            margin: 0 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .progress-dot.active {
             background-color: #08704b;
-            border-radius: 5px;
-            position: absolute;
-            top: 0;
-            left: 0;
-            transition: width 0.3s ease;
         }
 
         /* Modal */
@@ -116,7 +109,6 @@
             height: 100%;
             overflow: auto;
             background-color: rgba(0, 0, 0, 0.4);
-            overflow: auto;
         }
 
         body.modal-open {
@@ -147,46 +139,57 @@
             cursor: pointer;
         }
 
-        .candidatar{
-        padding: 1.3em 3em;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 2.5px;
-        font-weight: 500;
-        color:#fefefe;
-        background-color:#08704b;
-        border: none;
-        border-radius: 45px;
-        box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease 0s;
-        cursor: pointer;
-        outline: none;
-        margin-top: 1%;
+        .candidatar {
+            padding: 1.3em 3em;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            font-weight: 500;
+            color: #fefefe;
+            background-color: #08704b;
+            border: none;
+            border-radius: 45px;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease 0s;
+            cursor: pointer;
+            outline: none;
+            margin-top: 1%;
         }
 
         .candidatar:hover {
-        background-color: #23c483;
-        box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
-        color: #fff;
-        transform: translateY(-7px);
+            background-color: #23c483;
+            box-shadow: 0px 15px 20px rgba(46, 229, 157, 0.4);
+            color: #fff;
+            transform: translateY(-7px);
         }
 
         .candidatar:active {
-        transform: translateY(-1px);
+            transform: translateY(-1px);
         }
 
+        .plus button {
+            background-color: #05563a;
+            border-radius: 500px;
+            color: #fefefe;
+            font-weight: 400;
+            padding: 1%;
+            width: 25px;
+            height: 25px;
+            border: none;
+            cursor: pointer;
+        }
+        
     </style>
 </head>
 <body>
     <center>
-        <!--<h1>Vagas Recentes</h1>-->
         <br>
         <div class="carousel-container">
             <div class="carousel">
                 <!-- cards dinâmicos -->
             </div>
-            <div class="progress-bar">
-                <div class="progress"></div>
+            <div class="progress-dots-container">
+                <!-- Pontos dinâmicos serão inseridos aqui -->
             </div>
         </div>
         <div class="controls">
@@ -208,52 +211,69 @@
             const carousel = document.querySelector(".carousel");
             const prevBtn = document.getElementById("prevBtn");
             const nextBtn = document.getElementById("nextBtn");
-            const progressBar = document.querySelector(".progress");
+            const progressDotsContainer = document.querySelector(".progress-dots-container");
 
             let currentIndex = 0;
             let numCards = 0;
             let cardWidth = 0;
+            let dots = [];
 
-            // Função atualizar a barra de progresso
-            function updateProgressBar() {
-                const progressWidth = (currentIndex + 1) * cardWidth / carousel.scrollWidth * 100;
-                progressBar.style.width = progressWidth + "%";
+            function updateActiveCard() {
+                const cards = document.querySelectorAll(".carousel .card");
+                cards.forEach((card, index) => {
+                    card.classList.toggle('active', index === currentIndex);
+                });
             }
 
-            // Função mover o carrossel para a esquerda
+            function updateProgressDots() {
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle("active", index === currentIndex);
+                });
+            }
+
+            function createProgressDots() {
+                progressDotsContainer.innerHTML = ''; 
+                for (let i = 0; i < numCards; i++) {
+                    const dot = document.createElement("div");
+                    dot.classList.add("progress-dot");
+                    progressDotsContainer.appendChild(dot);
+                    dots.push(dot);
+                }
+                updateProgressDots();
+            }
+
+            function scrollToIndex(index) {
+                const offset = (index * (cardWidth + 20)) - (carousel.offsetWidth / 2) + (cardWidth / 2) - 20;
+                carousel.style.transform = `translateX(-${offset}px)`;
+                updateActiveCard();
+                updateProgressDots();
+            }
+
             function moveCarouselLeft() {
                 if (currentIndex > 0) {
                     currentIndex--;
-                    carousel.scrollTo({
-                        left: currentIndex * cardWidth,
-                        behavior: "smooth"
-                    });
-                    updateProgressBar();
+                    scrollToIndex(currentIndex);
                 }
             }
 
-            // Função mover o carrossel para a direita
             function moveCarouselRight() {
                 if (currentIndex < numCards - 1) {
                     currentIndex++;
-                    carousel.scrollTo({
-                        left: currentIndex * cardWidth,
-                        behavior: "smooth"
-                    });
-                    updateProgressBar();
+                    scrollToIndex(currentIndex);
                 }
             }
 
-            // Adiciona eventos de clique aos botões de controle
             prevBtn.addEventListener("click", moveCarouselLeft);
             nextBtn.addEventListener("click", moveCarouselRight);
 
-            // Carrega as vagas e adiciona os cards ao carrossel
-            fetch("https://tramasso.selecty.com.br/jobfeed/index.php?token=383d50ae-1cff68-5f7c-5f7c-163f244a87781")
+            fetch("https://novotemporh.selecty.com.br/jobfeed/index.php?token=68d44a-11e5-1cff68-ad54-163f244a87781&portal=novotemporh")
                 .then(response => response.json())
                 .then(jobData => {
-                    numCards = jobData.length;
-                    jobData.forEach(job => {
+                    // Limitar a 10 vagas
+                    const limitedJobData = jobData.slice(0, 10);
+                    numCards = limitedJobData.length;
+
+                    limitedJobData.forEach(job => {
                         const card = document.createElement("div");
                         card.classList.add("card");
                         card.innerHTML = `
@@ -263,102 +283,53 @@
                                 <button>&plus;</button>
                             </div>
                         `;
-                        card.addEventListener("click", () => openModal(job)); // Adiciona evento de clique ao card
+                        card.addEventListener("click", () => openModal(job));
                         carousel.appendChild(card);
                     });
-                    cardWidth = carousel.firstElementChild.offsetWidth + parseFloat(getComputedStyle(carousel.firstElementChild).marginRight);
-                    updateProgressBar();
+
+                    cardWidth = carousel.firstElementChild.offsetWidth;
+                    createProgressDots();
+                    scrollToIndex(currentIndex);
                 })
-                .catch(error => {
-                    console.error("Erro ao carregar vagas: " + error);
-                });
-        });
+                .catch(error => console.error("Erro ao carregar dados:", error));
 
-        // Obtém o modal
-        var modal = document.getElementById("myModal");
-
-        // Obtém o elemento <span> que fecha o modal
-        var span = document.getElementsByClassName("close")[0];
-
-        // Função para abrir o modal com os detalhes da vaga
-        function openModal(vaga) {
-            var modalContent = document.getElementById("modal-content");
-            var formattedDescription = formatDescription(vaga.description);
-            var formattedRequirements = formatRequirements(vaga.requirements);
-            modalContent.innerHTML = `
-                <h3>${vaga.occupation}</h3>
-                <p><strong>Localização:</strong> ${vaga.location}</p>
+            function openModal(job) {
+                const modal = document.getElementById("myModal");
+                const modalContent = document.getElementById("modal-content");
+                modalContent.innerHTML = `
+                   <h3>${job.occupation}</h3>
+                <p><strong>Localização:</strong> ${job.location}</p>
                 <hr>
-                <p><strong>Descrição:</strong> ${formattedDescription}</p>
+                <p><strong>Descrição:</strong> ${job.description || 'Nenhuma descrição disponível.'}</p>
                 <hr>
-                <p><strong>Requisitos:</strong> ${formattedRequirements}</p>
+                <p><strong>Requisitos:</strong> ${job.requirements}</p>
                 <hr>
-                <center>
-                    <a target="_blank" href=" ${vaga.url} "><button class="candidatar">
+                     <center>
+                    <a target="_blank" href=" ${job.url} "><button class="candidatar">
                         Candidate-se Agora!
                     </button></a>
                 </center>
-            `;
-            modal.style.display = "block";
-            document.body.style.overflow = "hidden"; // Desativa a rolagem da página principal
-            modal.addEventListener("click", closeModal); // Adiciona evento de clique no modal para fechá-lo
-        }
+                `;
+                modal.style.display = "block";
+                document.body.classList.add("modal-open");
+            }
 
-        // Função para fechar o modal
-        function closeModal() {
-            modal.style.display = "none";
-            document.body.style.overflow = "auto"; // Reativa a rolagem da página principal
-            modal.removeEventListener("click", closeModal); // Remove o evento de clique no modal
-        }
-        // Quando o usuário clicar no <span> (x), fecha o modal
-        span.onclick = function() {
-            modal.style.display = "none";
-        };
-
-        // Quando o usuário clicar em qualquer lugar fora do modal, fecha o modal
-        window.onclick = function(event) {
-            if (event.target == modal) {
+            function closeModal() {
+                const modal = document.getElementById("myModal");
                 modal.style.display = "none";
-            }
-        };
-
-        // Função formatar a descrição da vaga
-        function formatDescription(description) {
-            // Quebra de linha: quebrando o texto em várias linhas usando <br>
-            description = description.replace(/\n/g, "<br>");
-
-            // Lista de itens: convertendo partes do texto em uma lista de itens usando <ul> e <li>
-            // description = description.replace(/- /g, "<li>");
-            //description = "<ul><li>" + description + "</li></ul>";
-
-            // Destaque em negrito: destacando palavras-chave ou frases importantes em negrito usando <strong>
-            description = description.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-
-            // Parágrafos curtos: dividindo o texto em parágrafos curtos usando <p>
-            description = "<p>" + description.replace(/\n\s*\n/g, "</p><p>") + "</p>";
-
-            return description;
-        }
-
-          // Função formatar os requerimentos da vaga
-            function formatRequirements(requirements) {
-                // Quebra de linha: quebrando o texto em várias linhas usando <br>
-                requirements = requirements.replace(/\n/g, "<br>");
-
-                // Lista de itens: convertendo partes do texto em uma lista de itens usando <ul> e <li>
-                requirements = requirements.replace(/- /g, "<li>");
-                requirements = "<ul><li>" + requirements + "</li></ul>";
-
-                // Destaque em negrito: destacando palavras-chave ou frases importantes em negrito usando <strong>
-                requirements = requirements.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-
-                // Parágrafos curtos: dividindo o texto em parágrafos curtos usando <p>
-                requirements = "<p>" + requirements.replace(/\n\s*\n/g, "</p><p>") + "</p>";
-
-                return requirements;
+                document.body.classList.remove("modal-open");
             }
 
+            const closeModalBtn = document.querySelector(".close");
+            closeModalBtn.addEventListener("click", closeModal);
 
+            window.addEventListener("click", function(event) {
+                const modal = document.getElementById("myModal");
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+        });
     </script>
 </body>
 </html>
